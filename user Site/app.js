@@ -4,73 +4,32 @@ var MainCard = document.getElementById("MainCard")
 var result = document.getElementById("result")
 var timer = document.getElementById("timer")
 
-var QuizData = [
-    {
-        question: "HTML stands for?",
-        options: [
-            "Hyper Text Markup Language",
-            "High Text Machine Language",
-            "Hyper Transfer Markup Language",
-            "Home Tool Markup Language"
-        ],
-        type: "radio",
-        correctOptions: "Hyper Text Markup Language"
-    },
-    {
-        question: "Which are heading tags in HTML?",
-        options: ["<h1>", "<h2>", "<p>", "<div>"],
-        type: "checkbox",
-        correctOptions: ["<h1>", "<h2>"]
-    },
-    {
-        question: "2 + 2 × 2 = ?",
-        options: ["6", "8", "4", "2"],
-        type: "radio",
-        correctOptions: "6"
-    },
-    // {
-    //     question: "Which tag is used to create a paragraph?",
-    //     options: ["<p>", "<h1>", "<div>", "<br>"],
-    //     type: "radio",
-    //     correctOptions: "<p>"
-    // },
-    // {
-    //     question: "Which are JavaScript data types?",
-    //     options: ["String", "Number", "Boolean", "Heading"],
-    //     type: "checkbox",
-    //     correctOptions: ["String", "Number", "Boolean"]
-    // },
-    // {
-    //     question: "Which symbol is used for comments in JavaScript (single line)?",
-    //     options: ["//", "<!-- -->", "/* */", "#"],
-    //     type: "radio",
-    //     correctOptions: "//"
-    // },
-    // {
-    //     question: "Which methods are used to display output in JavaScript?",
-    //     options: ["alert()", "console.log()", "document.write()", "printText()"],
-    //     type: "checkbox",
-    //     correctOptions: ["alert()", "console.log()", "document.write()"]
-    // },
-    // {
-    //     question: "Which HTML tag is used to insert an image?",
-    //     options: ["<img>", "<image>", "<src>", "<picture>"],
-    //     type: "radio",
-    //     correctOptions: "<img>"
-    // },
-    // {
-    //     question: "Which are looping statements in JavaScript?",
-    //     options: ["for", "while", "if", "do...while"],
-    //     type: "checkbox",
-    //     correctOptions: ["for", "while", "do...while"]
-    // },
-    // {
-    //     question: "Which keyword is used to declare a variable in JavaScript?",
-    //     options: ["var", "int", "string", "define"],
-    //     type: "radio",
-    //     correctOptions: "var"
-    // }
-];
+var QuizData = [];
+
+function shuffleArray(array) {
+    // Loop from the last element down to the second element
+    for (let i = array.length - 1; i > 0; i--) {
+        // Pick a random index from 0 to i
+        const j = Math.floor(Math.random() * (i + 1));
+
+        // Swap elements using destructuring assignment
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+
+async function getAllQuestions() {
+    var quizkey = localStorage.getItem("quizKey")
+    await firebase.database().ref(" Questions").child(quizkey)
+        .get().then((snap) => {
+            console.log(snap.val())
+            var arr = Object.values(snap.val())
+            QuizData = shuffleArray(arr)
+            showQuizQuestion()
+            console.log(QuizData)
+        })
+}
 
 
 var index = 0;
@@ -78,7 +37,7 @@ var score = 0;
 var correctAnswer = 0;
 
 var min = 1
-var second = 5;
+var second = 50000000;
 var timer1 = setInterval(() => {
     if (second > 0) {
         second--;
@@ -154,50 +113,33 @@ function showQuizQuestion() {
     var h1 = document.createElement("h1")
 
     h1.innerText = (index + 1) + ")" + QuizData[index].question
-    if (QuizData[index].type == "radio") {
+    for (var i = 0; i < 4; i++) {
 
-        for (var i = 0; i < QuizData[index].options.length; i++) {
-            var li = document.createElement("li")
-            var inp = document.createElement("input")
-            inp.type = "radio"
-            // inp.setAttribute("required",true)
-            inp.setAttribute("id", `option${i}`)
-            inp.setAttribute("name", "Quiz")
-            inp.setAttribute("value", QuizData[index].options[i])
-            var label = document.createElement("label")
-            label.innerText = QuizData[index].options[i]
-            label.setAttribute("for", `option${i}`)
+        var optionNumber = i + 1;
+        var optionId = `option${optionNumber}`;
 
-            li.appendChild(inp)
-            li.appendChild(label)
-            ul.appendChild(li)
+        var li = document.createElement("li")
+        var inp = document.createElement("input")
+        inp.type = "radio"
+        console.log(QuizData[index])
 
-        }
+        inp.setAttribute("id", optionId)
+        inp.setAttribute("name", "Quiz")
+        inp.setAttribute("value", QuizData[index][`option${optionNumber}`])
+        var label = document.createElement("label")
+        label.innerText = QuizData[index][`option${optionNumber}`]
+        label.setAttribute("for", optionId)
 
 
-    }
+        li.appendChild(inp);
+        li.appendChild(label);
+        ul.appendChild(li);
 
-    else if (QuizData[index].type == "checkbox") {
 
-        for (var i = 0; i < QuizData[index].options.length; i++) {
-            var li = document.createElement("li")
-            var inp = document.createElement("input")
-            inp.type = "checkbox"
-            inp.setAttribute("id", `option${i}`)
-            inp.setAttribute("name", "Quiz")
-            inp.setAttribute("value", QuizData[index].options[i])
-            var label = document.createElement("label")
-            label.innerText = QuizData[index].options[i]
-            label.setAttribute("for", `option${i}`)
-
-            li.appendChild(inp)
-            li.appendChild(label)
-            ul.appendChild(li)
-
-        }
 
 
     }
+
 
     var div = document.createElement("div")
     div.setAttribute("id", "btn1")
@@ -226,7 +168,7 @@ function showQuizQuestion() {
     for (var i = 0; i < input.length; i++) {
         console.log(input[i])
         input[i].addEventListener("change", function (e) {
-            console.log(e.target.checked)
+            // console.log(e.target.checked)
 
 
 
@@ -257,39 +199,13 @@ function ShowNext() {
     var check = false;
     for (var i = 0; i < liItems.length; i++) {
 
-        if (QuizData[index].type == "radio") {
-            if (liItems[i].childNodes[0].checked == true) {
-                check = true
-                if (QuizData[index].correctOptions == liItems[i].childNodes[0].value) {
-                    score += 1;
-                }
-                break;
+        if (liItems[i].childNodes[0].checked == true) {
+            check = true
+            if (QuizData[index].answer == liItems[i].childNodes[0].value) {
+                score += 1;
             }
+            break;
         }
-        else if (QuizData[index].type == "checkbox") {
-            var givenScore = 1 / QuizData[index].correctOptions.length
-            if (liItems[i].childNodes[0].checked == true) {
-                check = true
-                var checkAnswer = QuizData[index].correctOptions.indexOf(liItems[i].childNodes[0].value)
-                if (checkAnswer != -1) {
-                    score += givenScore
-
-
-
-                }
-                if (checkAnswer == -1) {
-                    score -= givenScore
-
-                }
-
-
-            }
-
-
-
-        }
-
-
     }
 
     if (check == true) {
@@ -301,42 +217,19 @@ function ShowNext() {
     }
 }
 
-function submit() {
+async function submit() {
 
     var liItems = container.childNodes[1].childNodes
     var check = false;
     for (var i = 0; i < liItems.length; i++) {
-        if (QuizData[index].type == "radio") {
-            if (liItems[i].childNodes[0].checked == true) {
-                check = true
-                if (QuizData[index].correctOptions == liItems[i].childNodes[0].value) {
-                    score += 1;
-                }
-                break;
+
+        if (liItems[i].childNodes[0].checked == true) {
+            check = true
+            if (QuizData[index].answer == liItems[i].childNodes[0].value) {
+                score += 1;
             }
+            break;
         }
-        else if (QuizData[index].type == "checkbox") {
-            var givenScore = 1 / QuizData[index].correctOptions.length
-            if (liItems[i].childNodes[0].checked == true) {
-                check = true
-                var checkAnswer = QuizData[index].correctOptions.indexOf(liItems[i].childNodes[0].value)
-                if (checkAnswer != -1) {
-                    score += givenScore
-
-
-                }
-                if (checkAnswer == -1) {
-                    score -= givenScore
-
-                }
-
-            }
-
-
-
-        }
-        score = Math.round(score)
-
     }
     if (check == true) {
         MainCard.style.display = "none"
@@ -372,10 +265,82 @@ function submit() {
 
     <button onclick="location.reload()">Try Again</button>
 `;
+        var quizkey = localStorage.getItem("quizKey")
+        var loginUser = localStorage.getItem("loginUser")
+
+
+
+        // 
+        var resultObj = {
+            quizkey: quizkey,
+            loginUser: loginUser,
+            score: percentage,
+
+        }
+        console.log(resultObj)
+        var res = await firebase.database().ref("user").child(loginUser).child("Result").push(resultObj)
+
     }
     else {
         alert("bhai 1 select kar")
     }
 }
 
-showQuizQuestion()
+// showQuizQuestion()
+
+
+
+
+async function checkQuiz() {
+    var quizkey = localStorage.getItem("quizKey")
+    var loginUser = localStorage.getItem("loginUser")
+    var percentage = 0;
+
+
+    var startQuiz = true;
+    var res = await firebase.database().ref("user").child(loginUser).child("Result")
+        .get()
+        .then((snap) => {
+            console.log(snap.val())
+               if(snap.val()==null){
+                  getAllQuestions()
+                  return
+
+
+            }
+            var object = Object.values(snap.val())
+         
+
+            console.log(object)
+            for (var i = 0; i < object.length; i++) {
+                if (object[i].quizkey == quizkey) {
+                    console.log("true")
+                    startQuiz = false;
+                    percentage = object[i].score
+
+                }
+            }
+
+
+
+        })
+    if (startQuiz == true) {
+        getAllQuestions()
+
+    }
+    else {
+        MainCard.style.display = "none"
+        MainCard.style.display = "none";
+        result.style.display = "block";
+        result.innerHTML = `
+    <h1>🎉 Quiz Result</h1>
+
+    <div class="score">${percentage}%</div>
+`;
+    }
+
+}
+
+checkQuiz()
+
+
