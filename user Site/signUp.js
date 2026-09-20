@@ -46,8 +46,8 @@ async function uploadimage() {
     if (!file) {
         return alert("please select profile image")
     }
-    const cloudName = "dgbkoycyp"
-    const uploadFolder = "storageQuizApp"
+    const cloudName = "zmpw6oge"
+    const uploadFolder = "upload"
     const formData = new FormData()
     formData.append("file", file)
     formData.append("upload_preset", uploadFolder)
